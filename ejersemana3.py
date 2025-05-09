@@ -2,8 +2,8 @@ productos = []
 
 
 def menu():
-    print("Bienvenido al sistema de gestión de productos\n 1. Agregar producto\n 2. Eliminar producto\n " \
-    "3. Listar productos\n 4. Actualizar precio\n 5. Salir del programa")
+    print("Bienvenido al sistema de gestión de productos\n 1. Agregar producto\n 2. Eliminar producto\n " 
+    "3. Listar productos\n 4. Actualizar precio\n 5. Valor total del inventario\n 6. Salir del programa")
 
 def eliminar_producto(nombre):
     for producto in productos:
@@ -11,29 +11,28 @@ def eliminar_producto(nombre):
             productos.remove(producto)
             print(f"Producto {nombre} eliminado con éxito.")
             return
-    print(f"El producto{nombre} no se encuentra en la lista.")
-def consultar_producto():
+    print(f"El producto {nombre} no se encuentra en la lista.")
+
+def consultar_producto(nombre):
     if not productos:
         print("No hay productos registrados.")
-    else:
-        for producto in productos:
-            print(f"Nombre: {producto['nombre']}, Precio: {producto['precio']}, Cantidad: {producto['cantidad']}")
-    # busca por nombre especifico
-    # for producto in productos:
-    #     if producto["nombre"] == nombre:
-    #         print(f"Nombre: {producto['nombre']}, Precio: {producto['precio']}, Cantidad: {producto['cantidad']}")
-    #         encontrado = True
-    #         break   
-     
+        return
+    encontrado = False
+    for producto in productos:
+        if producto["nombre"] == nombre:
+            print(f"Nombre: {producto['nombre']}, Precio: {producto['precio']:.3f}, Cantidad: {producto['cantidad']}")
+            encontrado = True
+            break
+    if not encontrado:
+        print(f"El producto con nombre '{nombre}' no se encuentra en la lista.")
+
 def actualizar_precio(nombre, nuevo_precio):
     for producto in productos:
         if producto["nombre"] == nombre:
             producto["precio"] = nuevo_precio
-def calcular_total():
-    total = 0
-    for producto in productos:
-        total += producto["precio"] * producto["cantidad"]
-    return total
+            print(f"El producto con el nombre {nombre} fue actualizado correctamente")
+            return
+    print(f"El producto {nombre} no se en la lista")
 
 def agregar_producto(nombre, precio, cantidad):
     producto = {
@@ -44,56 +43,73 @@ def agregar_producto(nombre, precio, cantidad):
     productos.append(producto)
     print(f"Producto {nombre} agregado con éxito.")
 
+calcular_total = lambda: sum(map(lambda x: x["precio"] * x["cantidad"], productos))
+      
 while True:
     menu()
     opcion_str = input("Ingrese la opción deseada: ").strip()#strip() elimina los espacios en blanco
-    opcion = int(opcion_str)#convertir a entero
+
     if not opcion_str.isdigit():#isdigit() verifica si es un digito
         print("Opción no válida. Por favor, elija una opción del menú.")
         continue
+    
+    opcion = int(opcion_str)#convertir a entero
 
     match opcion:
         case 1:
-            try:
-                nombre = input("Ingrese el nombre del producto: ").lower().strip()
-                if not nombre:
-                    raise ValueError("El nombre no puede estar vacío.")
-                if not nombre.isalpha():  # Verifica que el nombre solo contenga letras
-                    raise ValueError(f"\033[91mEl nombre no puede contener números o caracteres especiales.\033[0m")
-                
-                precio = float(input("Ingrese el precio del producto: "))
-                if precio < 0:
-                    raise ValueError("El precio no puede ser negativo.")
+            nombre = input("Ingrese el nombre del producto: ").lower().strip()
+            if not nombre or not nombre.isalpha():  # Verifica que el nombre solo contenga letras
+                print("\033[91mEl nombre debe contener solo letras y no puede estar vacío.\033[0m")
+                continue
 
-                cantidad = int(input("Ingrese la cantidad del producto: "))
-                if cantidad < 0:
-                    raise ValueError("La cantidad no puede ser negativa.")
-                agregar_producto(nombre, precio, cantidad)
-            except ValueError as e:
-                print(f"\033[91m Error: {e}. Intenta de nuevo.\033[0m\n")
-                #raise se usa para lanzar una excepcion de manera intencionada, es decir detiene la ejecucion y muestra el error pero con el except vuelve y pide el dato
+            precio_str = input("Ingrese el precio del producto: ").strip()
+            if not precio_str.replace(".", "", 1).isdigit():
+                print("\033[91mEl precio debe ser un número válido.\033[0m")
+                continue
+            precio = float(precio_str)
+            if precio < 0:
+                print("\033[91mEl precio no puede ser negativo.\033[0m")
+                continue
+
+            cantidad_str = input("Ingrese la cantidad del producto: ").strip()
+            if not cantidad_str.isdigit():
+                print("\033[91mLa cantidad debe ser un número entero.\033[0m")
+                continue
+            cantidad = int(cantidad_str)
+            if cantidad < 0:
+                print("\033[91mLa cantidad no puede ser negativa.\033[0m")
+                continue
+            agregar_producto(nombre, precio, cantidad)
+              
         case 2:
-            try:
-                nombre = input("Ingrese el nombre del producto a eliminar: ").strip().lower()
-                if not nombre:
-                    raise ValueError("El nombre solo debe contener letras.")
-                eliminar_producto(nombre)
-            except ValueError as e:
-                print(f"Error: {e}. Intenta de nuevo.")
+            nombre = input("Ingrese el nombre del producto a eliminar: ").strip().lower()
+            if not nombre or not nombre.isalpha():
+                print("El nombre solo debe contener letras y no puede estar vacío.")
+                continue
+            eliminar_producto(nombre)
         case 3:
-                consultar_producto()
+                nombre = input("Ingrese el nombre del producto que desea consultar: ").strip().lower()
+                consultar_producto(nombre)
         case 4:
-            try:
                 nombre = input("Ingrese el nombre del producto a actualizar: ").strip().lower()
-                if not nombre:
-                    raise ValueError("El nombre solo debe contener letras.")
-                nuevo_precio = float(input("Ingrese el nuevo precio del producto: "))
+                if not nombre or not nombre.isalpha():
+                    print("El nombre solo debe contener letras y no puede estar vacío.")
+                    continue
+
+                nuevo_precio_str = input("Ingrese el nuevo precio del producto: ").strip().lower()
+                if not nuevo_precio_str.replace(".", "", 1).isdigit():
+                    print("El precio debe ser un número válido.")
+                    continue
+                nuevo_precio = float(nuevo_precio_str)
                 if nuevo_precio < 0:
-                    raise ValueError("El precio no puede ser negativo.")
+                    print("El precio no puede ser negativo.")
+                    continue
                 actualizar_precio(nombre, nuevo_precio)
-            except ValueError as e:
-                print(f"Error: {e}. Intenta de nuevo.")
+
         case 5:
+            total = calcular_total()
+            print(f"| El valor total del inventario es: | ${total:,.3f} |")
+        case 6:
             print("Saliendo del programa.")
             break
         case _:

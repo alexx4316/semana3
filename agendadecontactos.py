@@ -29,7 +29,7 @@ def modificar_contacto(nombre, nuevo_telefono=None, nuevo_estado_civil=None, nue
             contacto["telefono"] = nuevo_telefono
         if nuevo_genero:
             contacto["genero"] = nuevo_genero
-        if estado_civil:
+        if nuevo_estado_civil:
             contacto["estado civil"] = nuevo_estado_civil
         return True
     return False
